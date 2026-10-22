@@ -1,0 +1,13 @@
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+WORKDIR /src
+COPY backend/UserDirectory.Api/UserDirectory.Api.csproj backend/UserDirectory.Api/
+RUN dotnet restore backend/UserDirectory.Api/UserDirectory.Api.csproj
+COPY backend/ backend/
+RUN dotnet publish backend/UserDirectory.Api/UserDirectory.Api.csproj -c Release -o /app/publish --no-restore
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
+WORKDIR /app
+COPY --from=build /app/publish .
+ENV ASPNETCORE_URLS=http://+:8080 Database__Path=/data/app.db
+RUN mkdir -p /data
+EXPOSE 8080
+ENTRYPOINT ["dotnet", "UserDirectory.Api.dll"]

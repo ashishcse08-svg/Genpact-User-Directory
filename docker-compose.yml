@@ -1,0 +1,25 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    ports:
+      - "5080:8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      Database__Path: /data/app.db
+      Frontend__Origins: http://localhost:5173;http://localhost:3000
+    volumes:
+      - user-directory-data:/data
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+      args:
+        VITE_API_URL: http://localhost:5080/api/users
+    ports:
+      - "3000:80"
+    depends_on:
+      - api
+volumes:
+  user-directory-data:
